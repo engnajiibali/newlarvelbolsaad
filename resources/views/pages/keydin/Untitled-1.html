@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Keydin Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <style>
+    .hover-overlay {
+      transition: opacity 0.3s ease-in-out;
+      opacity: 0;
+    }
+    .card:hover .hover-overlay {
+      opacity: 1 !important;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fa fa-info-circle text-primary"></i> Faahfaahinta Keydinta Hubka
+    </h3>
+    <a href="#" class="btn btn-outline-secondary btn-sm">
+      <i class="fa fa-arrow-left"></i> Back
+    </a>
+  </div>
+
+  <!-- Keydin Details -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-primary text-white fw-bold">
+      <i class="fa fa-warehouse me-2"></i> Macluumaadka Keydinta
+    </div>
+    <div class="card-body row g-3">
+      <div class="col-md-4">
+        <label class="fw-semibold text-muted">Nooca Qoriga:</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">{{ $keydin->QaybtaHubkaRelation->ItemName ?? '-' }}</div>
+      </div>
+      <div class="col-md-4">
+        <label class="fw-semibold text-muted">Qori Number:</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">{{ $keydin->keydin_lambarka1 }}</div>
+      </div>
+      <div class="col-md-4">
+        <label class="fw-semibold text-muted">Calamda Dawlada :</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">{{ $keydin->Calamaden }}</div>
+      </div>
+      <div class="col-md-4">
+        <label class="fw-semibold text-muted">Tarikhda Ladiwangaliyay:</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">{{ $keydin->keydin_CreateDate }}</div>
+      </div>
+      <div class="col-md-4">
+        <label class="fw-semibold text-muted">Lahansho </label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">
+          <span class="badge bg-secondary">{{ $keydin->Lahansho }}</span>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label class="fw-semibold text-muted">Xalada Guud :</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">{{ $keydin->ShaqeynKara == 1 ? 'Wuu shaqeynaya' : 'Ma shaqeynayo' }}</div>
+      </div>
+      <div class="col-12">
+        <label class="fw-semibold text-muted">Faahfaahin Dheeraad ah</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">
+         {{ $keydin->Describ }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign Info -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-success text-white fw-bold">
+      <i class="fa fa-user-shield me-2"></i> Macluumaadka Lagu Xidhay
+    </div>
+    <div class="card-body row g-3">
+      <div class="col-md-6">
+        <label class="fw-semibold text-muted">Askari / Fadhi</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">Cali Xasan</div>
+      </div>
+      <div class="col-md-6">
+        <label class="fw-semibold text-muted">Qalabka / Item</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">Qori AK47</div>
+      </div>
+      <div class="col-md-6">
+        <label class="fw-semibold text-muted">Taariikhda La Xidhay</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">04 Oct 2025, 12:30 PM</div>
+      </div>
+      <div class="col-md-6">
+        <label class="fw-semibold text-muted">Xaaladda</label>
+        <div class="form-control-plaintext border rounded p-2 bg-light">
+          <span class="badge bg-success">Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Images -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-dark text-white fw-bold">
+      <i class="fa fa-image me-2"></i> Sawirada Hubka
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <!-- Image 1 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-img-top position-relative">
+              <img src="https://via.placeholder.com/300x200" class="img-fluid rounded" style="height:200px; object-fit:cover;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 rounded d-flex align-items-center justify-content-center hover-overlay">
+                <a href="https://via.placeholder.com/800x600" target="_blank" class="btn btn-light btn-sm">
+                  <i class="fa fa-search-plus"></i> View
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image 2 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-img-top position-relative">
+              <img src="https://via.placeholder.com/300x200/0055ff/ffffff" class="img-fluid rounded" style="height:200px; object-fit:cover;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 rounded d-flex align-items-center justify-content-center hover-overlay">
+                <a href="https://via.placeholder.com/800x600/0055ff/ffffff" target="_blank" class="btn btn-light btn-sm">
+                  <i class="fa fa-search-plus"></i> View
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image 3 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-img-top position-relative">
+              <img src="https://via.placeholder.com/300x200/ff0000/ffffff" class="img-fluid rounded" style="height:200px; object-fit:cover;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 rounded d-flex align-items-center justify-content-center hover-overlay">
+                <a href="https://via.placeholder.com/800x600/ff0000/ffffff" target="_blank" class="btn btn-light btn-sm">
+                  <i class="fa fa-search-plus"></i> View
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
