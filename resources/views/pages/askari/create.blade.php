@@ -23,7 +23,7 @@
                     <label>Fadhi *</label>
                     <select name="FadhiId" class="form-control" required>
                         <option value="">Dooro Fadhi</option>
-                        @foreach($fadhis as $f)
+                        @foreach($Departments as $f)
                             <option value="{{ $f->id }}">{{ $f->name }}</option>
                         @endforeach
                     </select>

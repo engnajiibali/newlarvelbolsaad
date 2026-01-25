@@ -133,15 +133,20 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
 
-    Route::prefix('askari')->name('askari.')->group(function () {
-        Route::get('/', [AskariController::class, 'index'])->name('index'); // List all
-        Route::get('/create', [AskariController::class, 'create'])->name('create'); // Form create
-        Route::post('/store', [AskariController::class, 'store'])->name('store'); // Save new
-        Route::get('/{id}/edit', [AskariController::class, 'edit'])->name('edit'); // Edit form
-        Route::put('/{id}', [AskariController::class, 'update'])->name('update'); // Update
-        Route::delete('/{id}', [AskariController::class, 'destroy'])->name('destroy'); // Delete
-        Route::get('/{id}', [AskariController::class, 'show'])->name('show'); // View single
-    });
+    Route::get('/askari', [AskariController::class, 'index'])->name('askari.index'); // List all
+
+    Route::get('/askari/create', [AskariController::class, 'create'])->name('askari.create'); // Form create
+    
+    Route::post('/askari/store', [AskariController::class, 'store'])->name('askari.store'); // Save new
+    
+    Route::get('/askari/{id}/edit', [AskariController::class, 'edit'])->name('askari.edit'); // Edit form
+    
+    Route::put('/askari/{id}', [AskariController::class, 'update'])->name('askari.update'); // Update
+    
+    Route::delete('/askari/{id}', [AskariController::class, 'destroy'])->name('askari.destroy'); // Delete
+    
+    Route::get('/askari/{id}', [AskariController::class, 'show'])->name('askari.show'); // View single
+    
 
     /*
     |--------------------------------------------------------------------------
