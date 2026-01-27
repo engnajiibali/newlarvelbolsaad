@@ -20,6 +20,7 @@ class AskariController extends Controller
     
     public function create()
     {
+       
         $Departments = Department::all();
         return view('pages.askari.create', compact('Departments'));
     }
