@@ -248,16 +248,21 @@ new Chart(document.getElementById('carStatusChart'), {
 });
 
         // ===== OWNERSHIP CHART =====
-        new Chart(document.getElementById('ownershipChart'), {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(ownershipData).map(k => k == 0 ? 'Yala' : 'Baxay' ),
-                datasets: [{
-                    data: Object.values(ownershipData),
-                    backgroundColor: ['#0d6efd','#ffc107']
-                }]
-            }
-        });
+   new Chart(document.getElementById('ownershipChart'), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(ownershipData).map(k => {
+            if (k == 0) return 'Yala';
+            if (k == 1) return 'Baxay';
+            if (k == 2) return 'Shaqsiyaadka';
+        }),
+        datasets: [{
+            data: Object.values(ownershipData),
+            backgroundColor: ['#0d6efd', '#ffc107', '#198754']
+        }]
+    }
+});
+
 
         // ===== KEYDIN ITEMS CHART =====
         new Chart(document.getElementById('itemsKeydinChart'), {

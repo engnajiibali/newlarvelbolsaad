@@ -147,7 +147,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     
     Route::get('/askari/{id}', [AskariController::class, 'show'])->name('askari.show'); // View single
     
-
+Route::get('/search-askari', [AskariController::class, 'searchAskari'])
+    ->name('search.askari');
     /*
     |--------------------------------------------------------------------------
     | Resource Controllers (Inta kale ee Routes-kaaga)

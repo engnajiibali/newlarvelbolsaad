@@ -79,7 +79,7 @@ $(function () {
         ajax: "{{ route('stores.index') }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-            {data: 'name', name: 'name'},
+            {data: 'StoreName', name: 'StoreName'},
             {data: 'department_name', name: 'department_name'},
             {data: 'status', name: 'status', render: function(data){ return data==1 ? 'Active' : 'Inactive'; }},
             {data: 'action', name: 'action', orderable: false, searchable: false},

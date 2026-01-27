@@ -68,14 +68,13 @@
                 {{-- ================= Dynamic Xaalada2 ================= --}}
                 <div class="col-md-12 d-none" id="Xaalada2_container">
                     <div class="row">
-                        <div class="col-md-6 d-none" id="wrapper_B">
-                            <label class="form-label fw-bold">Xaalad Koowaad *</label>
-                            <select class="form-control" name="Xaalada2B">
-                                <option value="">Dooro...</option>
-                                <option value="1">La baxshay</option>
-                                <option value="6">La Qabtay</option>
-                            </select>
-                        </div>
+                       <div class="col-md-6 d-none" id="wrapper_B">
+    <label class="form-label fw-bold">Raadi askari  *</label>
+
+    <select class="form-control select2-askari" name="AskariId" style="width:100%">
+        <option value="">Dooro Askari...</option>
+    </select>
+</div>
 
                         <div class="col-md-6 d-none" id="wrapper_C">
                             <label class="form-label fw-bold">Xaalad Labaad *</label>
@@ -239,6 +238,29 @@ $(function () {
                     text: i.magacaShaqsiga + ' (' + i.TalefanLambarka + ')'
                 }))
             })
+        }
+    });
+
+
+        $('.select2-askari').select2({
+        placeholder: 'Raadi Askari...',
+        allowClear: true,
+        minimumInputLength: 1,
+        ajax: {
+            url: '{{ route("search.askari") }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data
+                };
+            },
+            cache: true
         }
     });
 

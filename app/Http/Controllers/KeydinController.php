@@ -239,6 +239,7 @@ public function siiHubAskari(Request $request)
         return view('pages.keydin.create', compact('items','Department'));
     }
 
+
 public function store(Request $request)
 {
     // Security Check
@@ -246,41 +247,68 @@ public function store(Request $request)
     //     return redirect()->back()->with('error', 'Action not allowed for your role.');
     // }
 
-    $validated = $request->validate([
-        'Xaalada1' => 'required|in:0,1,2',
-        'Xaalada2' => 'required|in:1,2,3,4,5,6',
-        'date' => 'required|date',
-        'FadhiId' => 'required|integer|exists:departments,id',
-        'QaybtaHubka' => 'required|integer|exists:item,ItemId',
-        'sawiradaHubka' => 'nullable|array|max:12',
-        'sawiradaHubka.*' => 'image|max:2048',
-        'LambarkaTaxanaha' => 'required|string|max:255',
-        'Calamaden' => 'required|string|max:255',
-        'ShaqeynKara' => 'required|in:1,2',
-        'Lahansho' => 'required|in:Dawlada,Shaqsi,Qabiil',
-        'faahfaahintaHubka' => 'nullable|string',
-        
-        // Validation-ka cusub ee Store-ka (Haddii Xaalada1=0)
-        'store_id' => [
-            'nullable', 'integer', 'exists:storada,StoradaId',
-            function ($attribute, $value, $fail) use ($request) {
-                if ($request->input('Xaalada1') == 0 && !$value) {
-                    $fail('Fadlan dooro Bakhaarka (Store).');
-                }
-            },
-        ],
+    // ================= VALIDATION =================
+   $validated = $request->validate([
+    'Xaalada1' => 'required|in:0,1,2',
+    'Xaalada2' => 'required|in:1,2,3,4,5,6',
+    'date' => 'required|date',
+    'FadhiId' => 'required|integer|exists:departments,id',
+    'QaybtaHubka' => 'required|integer|exists:item,ItemId',
+    'sawiradaHubka' => 'nullable|array|max:12',
+    'sawiradaHubka.*' => 'image|max:2048',
+    'LambarkaTaxanaha' => 'required|string|max:255',
+    'Calamaden' => 'required|string|max:255',
+    'ShaqeynKara' => 'required|in:1,2',
+    'Lahansho' => 'required|in:Dawlada,Shaqsi,Qabiil',
+    'faahfaahintaHubka' => 'nullable|string',
 
-        'ShaqsiId' => [
-            'nullable', 'integer', 'exists:shaqsiyadka,ShaqsiyaadkaId',
-            function ($attribute, $value, $fail) use ($request) {
-                if ($request->input('Xaalada1') == 2 && !$value) {
-                    $fail('Fadlan dooro Shaqsi.');
-                }
-            },
-        ],
-    ]);
+    // Haddii Xaalada1 = 0 → Store required
+    'store_id' => [
+        'nullable', 'integer', 'exists:storada,StoradaId',
+        function ($attribute, $value, $fail) use ($request) {
+            if ($request->input('Xaalada1') == 0 && !$value) {
+                $fail('Fadlan dooro Bakhaarka (Store).');
+            }
+        },
+    ],
 
-    // Maareynta Sawirada
+    // Haddii Xaalada1 = 2 → Shaqsi required
+    'ShaqsiId' => [
+        'nullable', 'integer', 'exists:shaqsiyadka,ShaqsiyaadkaId',
+        function ($attribute, $value, $fail) use ($request) {
+            if ($request->input('Xaalada1') == 2 && !$value) {
+                $fail('Fadlan dooro Shaqsi.');
+            }
+        },
+    ],
+
+    // ✅ Haddii Xaalada1 = 1 → Askari required
+    'AskariId' => [
+        'nullable', 'integer', 'exists:askarta,AskariId',
+        function ($attribute, $value, $fail) use ($request) {
+            if ($request->input('Xaalada1') == 1 && !$value) {
+                $fail('Fadlan dooro Askari.');
+            }
+        },
+    ],
+]);
+
+
+    // ================= DUPLICATE CHECK (ADDED) =================
+    $exists = \App\Models\Keydin::where(
+        'keydin_lambarka1',
+        $validated['LambarkaTaxanaha']
+    )->exists();
+
+    if ($exists) {
+        return redirect()->back()
+            ->withInput()
+            ->withErrors([
+                'LambarkaTaxanaha' => 'Lambarka Taxanaha horey ayuu ugu jiraa system-ka.'
+            ]);
+    }
+
+    // ================= IMAGE HANDLING =================
     $imagePaths = [];
     if ($request->hasFile('sawiradaHubka')) {
         foreach ($request->file('sawiradaHubka') as $image) {
@@ -290,13 +318,13 @@ public function store(Request $request)
         }
     }
 
-    // 1. Create Keydin (Had iyo jeer waa la abuurayaa)
-    $keydin = Keydin::create([
+    // ================= CREATE KEYDIN =================
+    $keydin = \App\Models\Keydin::create([
         'keydin_Xalada' => $validated['Xaalada1'],
         'Xalada' => $validated['Xaalada2'],
         'keydin_CreateDate' => $validated['date'],
         'FadhiId' => $validated['FadhiId'],
-        'StoradaId' => $validated['store_id'] ?? null, // Ku dar store_id haddii uu jiro
+        'StoradaId' => $validated['store_id'] ?? null,
         'keydin_itemID' => $validated['QaybtaHubka'],
         'keydin_image1' => count($imagePaths) ? json_encode($imagePaths) : null,
         'keydin_lambarka1' => $validated['LambarkaTaxanaha'],
@@ -304,21 +332,41 @@ public function store(Request $request)
         'ShaqeynKara' => $validated['ShaqeynKara'],
         'Lahansho' => $validated['Lahansho'],
         'Describ' => $validated['faahfaahintaHubka'],
-        'UserId' => auth()->id(), // Had iyo jeer xusuusnoow qofka save-gareeyay
+        'UserId' => auth()->id(),
     ]);
 
+    // ================= ASSIGN TO STORE =================
     if ($validated['Xaalada1'] == 0) {
-    \App\Models\AssignHubToStore::create([
-        'ashtst_keID'      => $keydin->keydin_ID,        // ID-ga hubka ee hadda la save-gareeyay
-        'StoreID'          => $validated['store_id'],    // Bakhaarka la doortay
-        'QoriNum'          => $validated['LambarkaTaxanaha'],
-        'CreateDate'       => now(),
-        'ashtst_Status'    => 0,                         // 1 = Active/In Store
-        'ashtst_FinishDate' => null,
-    ]);
-}
+        \App\Models\AssignHubToStore::create([
+            'ashtst_keID' => $keydin->keydin_ID,
+            'StoreID' => $validated['store_id'],
+            'QoriNum' => $validated['LambarkaTaxanaha'],
+            'CreateDate' => now(),
+            'ashtst_Status' => 0,
+            'ashtst_FinishDate' => null,
+        ]);
+    }
 
-    // 2. INSERT ONLY WHEN XALADA IS 2 (Shaqsi)
+        // ================= ASSIGN TO ASKARI (Xaalada1 == 1) =================
+    if ($validated['Xaalada1'] == 1) {
+
+    
+        \App\Models\Assignhub::create([
+            'AskariId' => $validated['AskariId'],
+            'ItemId' => $validated['QaybtaHubka'],
+            'QoriNumber' => $validated['LambarkaTaxanaha'],
+            'CreateDate' => now(),
+            'UpdateDate' => now(),
+            'FinishDate' => null,
+            'Status' => 0,
+            'StoreId' => $validated['store_id'] ?? 0,
+            'keydin_ID' => $keydin->keydin_ID,
+            'descrip' => $validated['faahfaahintaHubka'],
+            'sawirka' => count($imagePaths) ? json_encode($imagePaths) : null,
+        ]);
+    }
+
+        // 2. INSERT ONLY WHEN XALADA IS 2 (Shaqsi)
     if ($validated['Xaalada1'] == 2) {
         AssignShaqsi::create([
             'shaqiid' => $validated['ShaqsiId'],
@@ -333,11 +381,110 @@ public function store(Request $request)
         ]);
     }
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Xogta si guul leh ayaa loo keydiyay'
-    ]);
+    // ================= SUCCESS =================
+    return redirect()->back()->with('success', 'Hubka si guul leh ayaa loo keydiyay.');
 }
+
+
+// public function store(Request $request)
+// {
+//     // Security Check
+//     // if (auth()->user()->role_id != 1) {
+//     //     return redirect()->back()->with('error', 'Action not allowed for your role.');
+//     // }
+
+//     $validated = $request->validate([
+//         'Xaalada1' => 'required|in:0,1,2',
+//         'Xaalada2' => 'required|in:1,2,3,4,5,6',
+//         'date' => 'required|date',
+//         'FadhiId' => 'required|integer|exists:departments,id',
+//         'QaybtaHubka' => 'required|integer|exists:item,ItemId',
+//         'sawiradaHubka' => 'nullable|array|max:12',
+//         'sawiradaHubka.*' => 'image|max:2048',
+//         'LambarkaTaxanaha' => 'required|string|max:255',
+//         'Calamaden' => 'required|string|max:255',
+//         'ShaqeynKara' => 'required|in:1,2',
+//         'Lahansho' => 'required|in:Dawlada,Shaqsi,Qabiil',
+//         'faahfaahintaHubka' => 'nullable|string',
+        
+//         // Validation-ka cusub ee Store-ka (Haddii Xaalada1=0)
+//         'store_id' => [
+//             'nullable', 'integer', 'exists:storada,StoradaId',
+//             function ($attribute, $value, $fail) use ($request) {
+//                 if ($request->input('Xaalada1') == 0 && !$value) {
+//                     $fail('Fadlan dooro Bakhaarka (Store).');
+//                 }
+//             },
+//         ],
+
+//         'ShaqsiId' => [
+//             'nullable', 'integer', 'exists:shaqsiyadka,ShaqsiyaadkaId',
+//             function ($attribute, $value, $fail) use ($request) {
+//                 if ($request->input('Xaalada1') == 2 && !$value) {
+//                     $fail('Fadlan dooro Shaqsi.');
+//                 }
+//             },
+//         ],
+//     ]);
+
+//     // Maareynta Sawirada
+//     $imagePaths = [];
+//     if ($request->hasFile('sawiradaHubka')) {
+//         foreach ($request->file('sawiradaHubka') as $image) {
+//             $imageName = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
+//             $image->storeAs('public/keydin_images', $imageName);
+//             $imagePaths[] = $imageName;
+//         }
+//     }
+
+//     // 1. Create Keydin (Had iyo jeer waa la abuurayaa)
+//     $keydin = Keydin::create([
+//         'keydin_Xalada' => $validated['Xaalada1'],
+//         'Xalada' => $validated['Xaalada2'],
+//         'keydin_CreateDate' => $validated['date'],
+//         'FadhiId' => $validated['FadhiId'],
+//         'StoradaId' => $validated['store_id'] ?? null, // Ku dar store_id haddii uu jiro
+//         'keydin_itemID' => $validated['QaybtaHubka'],
+//         'keydin_image1' => count($imagePaths) ? json_encode($imagePaths) : null,
+//         'keydin_lambarka1' => $validated['LambarkaTaxanaha'],
+//         'Calamaden' => $validated['Calamaden'],
+//         'ShaqeynKara' => $validated['ShaqeynKara'],
+//         'Lahansho' => $validated['Lahansho'],
+//         'Describ' => $validated['faahfaahintaHubka'],
+//         'UserId' => auth()->id(), // Had iyo jeer xusuusnoow qofka save-gareeyay
+//     ]);
+
+//     if ($validated['Xaalada1'] == 0) {
+//     \App\Models\AssignHubToStore::create([
+//         'ashtst_keID'      => $keydin->keydin_ID,        // ID-ga hubka ee hadda la save-gareeyay
+//         'StoreID'          => $validated['store_id'],    // Bakhaarka la doortay
+//         'QoriNum'          => $validated['LambarkaTaxanaha'],
+//         'CreateDate'       => now(),
+//         'ashtst_Status'    => 0,                         // 1 = Active/In Store
+//         'ashtst_FinishDate' => null,
+//     ]);
+// }
+
+//     // 2. INSERT ONLY WHEN XALADA IS 2 (Shaqsi)
+//     if ($validated['Xaalada1'] == 2) {
+//         AssignShaqsi::create([
+//             'shaqiid' => $validated['ShaqsiId'],
+//             'ItemId' => $validated['QaybtaHubka'],
+//             'QoriNumber' => $validated['LambarkaTaxanaha'],
+//             'CreateDate' => now(),
+//             'UpdateDate' => now(),
+//             'FinishDate' => null,
+//             'Status' => 0,
+//             'keydin_ID' => $keydin->keydin_ID,
+//             'descrip' => $validated['faahfaahintaHubka'],
+//         ]);
+//     }
+
+//     return response()->json([
+//         'status' => 'success',
+//         'message' => 'Xogta si guul leh ayaa loo keydiyay'
+//     ]);
+// }
 
     public function removeImage(Request $request)
     {
@@ -461,14 +608,16 @@ public function store(Request $request)
     {
         $Department = Department::all();
         $keydin = Keydin::with(['FadhiIdRelation', 'QaybtaHubkaRelation'])->findOrFail($id);
-        $isInactive = ($keydin->keydin_Xalada == 0);
+        // $isInactive = ($keydin->keydin_Xalada == 0);
 
         if($keydin->keydin_Xalada == 0){
+           
             $lastRecord = AssignHubToStore::with(['store'])
                 ->where('ashtst_keID', $id)
-                ->where('ashtst_Status', 0)
                 ->latest('ashtst_ID')
                 ->first();
+                
+                 
         } elseif($keydin->keydin_Xalada == 1){
             $lastRecord = Assignhub::with(['askari', 'item'])
                 ->where('keydin_ID', $id)
@@ -485,7 +634,7 @@ public function store(Request $request)
             $lastRecord = null;
         }
 
-        return view('pages.keydin.details', compact('keydin', 'isInactive', 'lastRecord','Department'));
+        return view('pages.keydin.details', compact('keydin', 'lastRecord','Department'));
     }
 
   public function destroy($id)

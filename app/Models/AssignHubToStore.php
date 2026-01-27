@@ -26,6 +26,7 @@ class AssignHubToStore extends Model
         'CreateDate',
         'ashtst_Status',
         'ashtst_FinishDate',
+        'ashtst_keID'
     ];
 
     // RELATIONS

@@ -6,6 +6,8 @@ use App\Models\Askari;
 use App\Models\Department;
 use App\Models\AssignFadhi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 
 class AskariController extends Controller
 {
@@ -87,4 +89,20 @@ class AskariController extends Controller
         $askari = Askari::with('Department')->findOrFail($id);
         return view('pages.askari.show', compact('askari'));
     }
+
+    public function searchAskari(Request $request)
+{
+    $search = $request->get('q');
+
+    $data = Askari::where('MagacaQofka', 'LIKE', "%{$search}%")
+        ->orWhere('LamabrkaCiidanka', 'LIKE', "%{$search}%")
+        ->select(
+            'AskariId as id',
+            DB::raw("CONCAT(MagacaQofka, ' - ', LamabrkaCiidanka) as text")
+        )
+        ->limit(20)
+        ->get();
+
+    return response()->json($data);
+}
 }
