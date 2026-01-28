@@ -2,16 +2,17 @@
 
 @section('content')
 
+{{-- ================= STYLES ================= --}}
 <style>
-    /* ===== POLICE BLUE MODERN THEME ===== */
-    .card {
-        border-radius: 14px;
-        transition: 0.3s ease;
-    }
+    body { background: #f4f6f9; }
 
+    .card {
+        border-radius: 16px;
+        transition: .3s ease;
+    }
     .card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 15px 35px rgba(0,0,0,.15);
     }
 
     .icon-wrapper {
@@ -22,263 +23,188 @@
         align-items: center;
         justify-content: center;
         margin: auto;
-        background: rgba(13, 110, 253, 0.12);
+        background: rgba(13,110,253,.15);
     }
 
-    /* Counter Number */
     .count {
-        font-weight: bold;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    .chart-card {
+        border-left: 5px solid #0d6efd;
     }
 </style>
 
-<h3 class="text-primary fw-bold mb-4">📊 Warbixin Kooban – Dashboard</h3>
+<h3 class="fw-bold text-primary mb-4">📊 Warbixin Kooban – Dashboard</h3>
 
 {{-- ================= SUMMARY CARDS ================= --}}
-<div class="row g-3 mb-3">
+<div class="row g-3 mb-4">
+@php
+$cards = [
+    ['Fadhiyada', $fadhiyada, 'building', 'primary'],
+    ['Waxyaha', $totalItems, 'box', 'success'],
+    ['Qandaraasyada', $Keydin, 'file-contract', 'warning'],
+    ['Hubka Mas\'uuliyiinta', $shaqsiyadka, 'shield-alt', 'danger'],
+];
+@endphp
 
-    {{-- Fadhiyada --}}
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 text-center p-4 bg-light">
-            <div class="icon-wrapper mb-2">
-                <i class="fas fa-building fa-2x text-primary"></i>
-            </div>
-            <h5 class="fw-semibold">Tirada Fadhiyad</h5>
-            <h2 class="count" data-target="{{ $fadhiyada }}">0</h2>
+@foreach($cards as [$title,$count,$icon,$color])
+<div class="col-md-3">
+    <div class="card text-center p-4 bg-light">
+        <div class="icon-wrapper mb-2">
+            <i class="fas fa-{{ $icon }} fa-2x text-{{ $color }}"></i>
         </div>
+        <h6 class="fw-semibold">{{ $title }}</h6>
+        <h2 class="count" data-target="{{ $count }}">0</h2>
     </div>
-
-    {{-- Waxyaha --}}
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 text-center p-4 bg-light">
-            <div class="icon-wrapper mb-2">
-                <i class="fas fa-box fa-2x text-success"></i>
-            </div>
-            <h5 class="fw-semibold">Tirada Waxyaha</h5>
-            <h2 class="count" data-target="{{ $totalItems }}">0</h2>
-        </div>
-    </div>
-
-    {{-- Qandaraasyada --}}
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 text-center p-4 bg-light">
-            <div class="icon-wrapper mb-2">
-                <i class="fas fa-file-contract fa-2x text-warning"></i>
-            </div>
-            <h5 class="fw-semibold">Tirada Qandaraasyada</h5>
-            <h2 class="count" data-target="{{ $Keydin }}">0</h2>
-        </div>
-    </div>
-
-    {{-- Hubka Mas'uuliyiinta --}}
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 text-center p-4 bg-light">
-            <div class="icon-wrapper mb-2">
-                <i class="fas fa-shield-alt fa-2x text-danger"></i>
-            </div>
-            <h5 class="fw-semibold">Hubka Mas'uuliyiinta</h5>
-            <h2 class="count" data-target="{{ $shaqsiyadka }}">0</h2>
-        </div>
-    </div>
+</div>
+@endforeach
 </div>
 
 {{-- ================= SECOND ROW ================= --}}
-<div class="row g-3 mb-3">
+<div class="row g-3 mb-4">
+@php
+$cards2 = [
+    ['Askarta', $Askari, 'user-tie', 'primary'],
+    ['Shaya', $totalItems, 'boxes', 'success'],
+    ['Isticmaaleyaal', 32, 'users', 'warning'],
+    ['Maqasin', 8, 'warehouse', 'danger'],
+];
+@endphp
 
-    {{-- Askarta --}}
-    <div class="col-md-3">
-        <div class="card text-center p-4 bg-light">
-            <div class="icon-wrapper mb-2"><i class="fas fa-user-tie fa-2x text-primary"></i></div>
-            <h5 class="fw-semibold">Tirada Askarta</h5>
-            <h2 class="count" data-target="{{ $Askari }}">0</h2>
+@foreach($cards2 as [$title,$count,$icon,$color])
+<div class="col-md-3">
+    <div class="card text-center p-4 bg-light">
+        <div class="icon-wrapper mb-2">
+            <i class="fas fa-{{ $icon }} fa-2x text-{{ $color }}"></i>
         </div>
+        <h6 class="fw-semibold">{{ $title }}</h6>
+        <h2 class="count" data-target="{{ $count }}">0</h2>
     </div>
-
-    {{-- Shaya --}}
-    <div class="col-md-3">
-        <div class="card text-center p-4 bg-light">
-            <div class="icon-wrapper mb-2"><i class="fas fa-boxes fa-2x text-success"></i></div>
-            <h5 class="fw-semibold">Tirada Shaya</h5>
-            <h2 class="count" data-target="{{ $totalItems }}">0</h2>
-        </div>
-    </div>
-
-    {{-- Users --}}
-    <div class="col-md-3">
-        <div class="card text-center p-4 bg-light">
-            <div class="icon-wrapper mb-2"><i class="fas fa-users fa-2x text-warning"></i></div>
-            <h5 class="fw-semibold">Isticmaaleyaal</h5>
-            <h2 class="count" data-target="32">0</h2>
-        </div>
-    </div>
-
-    {{-- Maqasin --}}
-    <div class="col-md-3">
-        <div class="card text-center p-4 bg-light">
-            <div class="icon-wrapper mb-2"><i class="fas fa-warehouse fa-2x text-danger"></i></div>
-            <h5 class="fw-semibold">Maqasinka</h5>
-            <h2 class="count" data-target="8">0</h2>
-        </div>
-    </div>
-
+</div>
+@endforeach
 </div>
 
 {{-- ================= THIRD ROW ================= --}}
-<div class="row g-3 mb-3">
-
-    {{-- Hubka Guud --}}
-    <div class="col-md-3">
-        <div class="card p-4 text-center bg-light">
-            <div class="icon-wrapper mb-2"><i class="fas fa-gun fa-2x text-primary"></i></div>
-            <h5 class="fw-semibold">Hubka Guud</h5>
-            <h2 class="count" data-target="{{ $KeydinItems->sum('Count') }}">0</h2>
+<div class="row g-3 mb-4">
+<div class="col-md-3">
+    <div class="card text-center p-4 bg-light">
+        <div class="icon-wrapper mb-2">
+            <i class="fas fa-gun fa-2x text-primary"></i>
         </div>
+        <h6 class="fw-semibold">Hubka Guud</h6>
+        <h2 class="count" data-target="{{ $KeydinItems->sum('Count') }}">0</h2>
     </div>
-
-    {{-- Dynamic Xaalada Labels --}}
-    @foreach($xaladaLabels as $value => $label)
-        @php
-            $count = $xaladaCounts[$value] ?? 0;
-        @endphp
-
-        <div class="col-md-3">
-            <div class="card p-4 text-center bg-light">
-                <div class="icon-wrapper mb-2">
-                    <i class="fas fa-clipboard-list fa-2x text-primary"></i>
-                </div>
-                <h5 class="fw-semibold">{{ $label }}</h5>
-                <h2 class="count" data-target="{{ $count }}">0</h2>
-            </div>
-        </div>
-    @endforeach
 </div>
 
-<hr>
+@foreach($xaladaLabels as $value => $label)
+<div class="col-md-3">
+    <div class="card text-center p-4 bg-light">
+        <div class="icon-wrapper mb-2">
+            <i class="fas fa-clipboard-list fa-2x text-primary"></i>
+        </div>
+        <h6 class="fw-semibold">{{ $label }}</h6>
+        <h2 class="count" data-target="{{ $xaladaCounts[$value] ?? 0 }}">0</h2>
+    </div>
+</div>
+@endforeach
+</div>
 
-{{-- ====================== CHARTS ====================== --}}
+{{-- ================= CHARTS ================= --}}
 <div class="row g-3 mb-4">
     <div class="col-md-6">
-        <div class="card p-4 shadow-sm">
-            <h5 class="text-center fw-semibold">🚘 Tirada Hubka ee Xaladahooda</h5>
-            <canvas id="carStatusChart" height="200"></canvas>
+        <div class="card chart-card p-4">
+            <h6 class="text-center fw-semibold">🚔 Tirada Hubka ee Xaladahooda</h6>
+            <canvas id="carStatusChart" height="220"></canvas>
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="card p-4 shadow-sm">
-            <h5 class="text-center fw-semibold">🔑 Xaaladda Guud ee Hubka</h5>
-            <canvas id="ownershipChart" height="100"></canvas>
+        <div class="card chart-card p-4">
+            <h6 class="text-center fw-semibold">🔑 Xaaladda Guud ee Hubka</h6>
+            <canvas id="ownershipChart" height="220"></canvas>
         </div>
     </div>
 </div>
 
-<div class="card shadow-sm border-0 p-4 mb-4">
-    <h5 class="text-center fw-semibold">📦 Tirada Hubka ee Keydin kasta</h5>
-    <canvas id="itemsKeydinChart" height="200"></canvas>
+<div class="card chart-card p-4 mb-4">
+    <h6 class="text-center fw-semibold">📦 Tirada Hubka ee Keydin kasta</h6>
+    <canvas id="itemsKeydinChart" height="260"></canvas>
 </div>
 
-{{-- ====================== SCRIPTS ====================== --}}
+<small class="text-muted d-block text-end">
+    🕒 Last updated: {{ now()->format('d M Y - H:i') }}
+</small>
+
+{{-- ================= SCRIPTS ================= --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <script>
-    // ===== COUNTER ANIMATION =====
-    document.querySelectorAll('.count').forEach(el => {
-        const target = +el.getAttribute('data-target');
-        let value = 0;
-        const speed = target / 40;
+/* ===== COUNTER ===== */
+document.querySelectorAll('.count').forEach(el=>{
+    const target=+el.dataset.target;
+    let i=0, step=target/40;
+    (function animate(){
+        if(i<target){ i+=step; el.innerText=Math.floor(i); requestAnimationFrame(animate); }
+        else el.innerText=target;
+    })();
+});
 
-        const update = () => {
-            if (value < target) {
-                value += speed;
-                el.innerText = Math.floor(value);
-                requestAnimationFrame(update);
-            } else {
-                el.innerText = target;
-            }
-        };
-        update();
-    });
+/* ===== DATA ===== */
+const carStatusData=@json($carStatusData);
+const ownershipData=@json($ownershipData);
+const keydinItems=@json($KeydinItems->pluck('Count'));
+const keydinLabels=@json($KeydinItems->pluck('ItemName'));
 
-    document.addEventListener('DOMContentLoaded', function() {
+const xLabels={1:"Baxay",2:"Yala",3:"Lumay",4:"Burbur",5:"Baafin",6:"La Qabtay"};
+const colors={1:"#0d6efd",2:"#198754",3:"#ffc107",4:"#dc3545",5:"#6f42c1",6:"#fd7e14"};
 
-        const carStatusData = @json($carStatusData);
-        const ownershipData = @json($ownershipData);
-        const keydinItems = @json($KeydinItems->pluck('Count'));
-        const keydinLabels = @json($KeydinItems->pluck('ItemName'));
-
-   const xLabels = {
-    1: "Hubka Baxay",
-    2: "Hubka Yala",
-    3: "Lumay",
-    4: "La burburiyay",
-    5: "Baafin",
-    6: "La Qabtay"
-};
-
-// Assign a unique color to each Xaalada
-const colors = {
-    1: '#0d6efd', // Baxay - Blue
-    2: '#198754', // Yala - Green
-    3: '#ffc107', // Lumay - Yellow
-    4: '#dc3545', // La burburiyay - Red
-    5: '#6f42c1', // Baafin - Purple
-    6: '#fd7e14'  // La Qabtay - Orange
-};
-
-// ===== CAR STATUS CHART =====
-new Chart(document.getElementById('carStatusChart'), {
-    type: 'bar',
-    data: {
-        labels: Object.keys(carStatusData).map(k => xLabels[k] ?? k),
-        datasets: [{
-            label: 'Tirada',
-            data: Object.values(carStatusData),
-            backgroundColor: Object.keys(carStatusData).map(k => colors[k] ?? '#999'),
-            borderRadius: 6
+/* ===== BAR STATUS ===== */
+new Chart(carStatusChart,{
+    type:'bar',
+    data:{
+        labels:Object.keys(carStatusData).map(k=>xLabels[k]),
+        datasets:[{
+            data:Object.values(carStatusData),
+            backgroundColor:Object.keys(carStatusData).map(k=>colors[k]),
+            borderRadius:8
         }]
     },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { display: false }
-        },
-        scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1 } }
-        }
+    options:{
+        plugins:{ legend:false, datalabels:{anchor:'end',align:'top',font:{weight:'bold'}}},
+        scales:{ y:{beginAtZero:true}}
+    },
+    plugins:[ChartDataLabels]
+});
+
+/* ===== DOUGHNUT ===== */
+new Chart(ownershipChart,{
+    type:'doughnut',
+    data:{
+        labels:['Yala','Baxay','Shaqsiyaad'],
+        datasets:[{data:Object.values(ownershipData),backgroundColor:['#0d6efd','#ffc107','#198754']}]
     }
 });
 
-        // ===== OWNERSHIP CHART =====
-   new Chart(document.getElementById('ownershipChart'), {
-    type: 'doughnut',
-    data: {
-        labels: Object.keys(ownershipData).map(k => {
-            if (k == 0) return 'Yala';
-            if (k == 1) return 'Baxay';
-            if (k == 2) return 'Shaqsiyaadka';
-        }),
-        datasets: [{
-            data: Object.values(ownershipData),
-            backgroundColor: ['#0d6efd', '#ffc107', '#198754']
+/* ===== KEYDIN ===== */
+new Chart(itemsKeydinChart,{
+    type:'bar',
+    data:{
+        labels:keydinLabels,
+        datasets:[{
+            data:keydinItems,
+            backgroundColor:'#0d6efd',
+            borderRadius:8
         }]
-    }
+    },
+    options:{
+        plugins:{ datalabels:{anchor:'end',align:'top',font:{weight:'bold'}}},
+        scales:{ y:{beginAtZero:true}}
+    },
+    plugins:[ChartDataLabels]
 });
-
-
-        // ===== KEYDIN ITEMS CHART =====
-        new Chart(document.getElementById('itemsKeydinChart'), {
-            type: 'bar',
-            data: {
-                labels: keydinLabels,
-                datasets: [{
-                    label: 'Tirada',
-                    data: keydinItems,
-                    backgroundColor: keydinItems.map(c => c>0?'#0d6efd':'#dc3545'),
-                    borderRadius: 6
-                }]
-            }
-        });
-
-    });
 </script>
 
 @endsection

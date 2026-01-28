@@ -90,6 +90,10 @@ class KeydinController extends Controller
             $query->where('keydin_Xalada', $request->status);
         }
 
+          if ($request->filled('status1')) {
+            $query->where('Xalada', $request->status1);
+        }
+
         if ($request->filled('Qorinumber')) {
             $Qorinumber = strtoupper($request->Qorinumber);
             $query->where('keydin_lambarka1', 'like', "%{$Qorinumber}%");
@@ -616,6 +620,7 @@ public function store(Request $request)
                 ->where('ashtst_keID', $id)
                 ->latest('ashtst_ID')
                 ->first();
+
                 
                  
         } elseif($keydin->keydin_Xalada == 1){

@@ -121,6 +121,17 @@
                 <input type="date" name="date_to" class="form-control"
                     value="{{ request('date_to') }}" placeholder="Date To">
             </div>
+               <div class="col-md-3">
+                <select name="status1" class="form-select">
+                       <option value="">Dooro Xaalada</option>
+                        <option value="1">La baxshay</option>
+                        <option value="2">La keydiyay</option>
+                        <option value="3">Lumay</option>
+                        <option value="5">Baafin</option>
+                        <option value="6">La Qabtay</option>
+                        <option value="4">La Burburiyay</option>
+                </select>
+            </div>
             <div class="col-md-1 d-grid">
                 <button class="btn btn-primary"><i class="ti ti-search"></i></button>
             </div>
