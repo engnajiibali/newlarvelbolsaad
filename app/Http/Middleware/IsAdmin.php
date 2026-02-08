@@ -17,7 +17,7 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        // Check if user is logged in and isadmin = 1
+        // Check if user is logged in and isadmin = 1s
         if (Auth::check() && Auth::user()->isAdmin == 1) {
             return $next($request);
         }
