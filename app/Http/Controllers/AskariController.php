@@ -11,14 +11,48 @@ use Illuminate\Support\Facades\DB;
 
 class AskariController extends Controller
 {
-    public function index()
-    {
+ public function index(Request $request)
+{
 
-        $assignments = AssignFadhi::with(['askari', 'fadhi'])->paginate(10);
-        return view('pages.askari.index', compact('assignments'));
-        // $askar = Askari::with('Department')->paginate(10);
-        // return view('pages.askari.index', compact('askar'));
-    }
+
+$assignments = AssignFadhi::with(['askari', 'fadhi'])
+    ->where('assignfadhi.Status', 0) // ✅ FIXED
+    ->withCount([
+        'assignhubs as qori_count' => function ($q) {
+            $q->where('assignhub.Status', 0); // ✅ FIXED
+        }
+    ])
+    ->when($request->darajada, function ($q) use ($request) {
+        $q->whereHas('askari', function ($qq) use ($request) {
+            $qq->where('Darajada', 'like', '%' . $request->darajada . '%');
+        });
+    })
+    ->when($request->lambar_ciidan, function ($q) use ($request) {
+        $q->whereHas('askari', function ($qq) use ($request) {
+            $qq->where('LamabrkaCiidanka', 'like', '%' . $request->lambar_ciidan . '%');
+        });
+    })
+    ->when($request->magaca, function ($q) use ($request) {
+        $q->whereHas('askari', function ($qq) use ($request) {
+            $qq->where('MagacaQofka', 'like', '%' . $request->magaca . '%');
+        });
+    })
+    ->when($request->fadhi_id, function ($q) use ($request) {
+        $q->where('assignfadhi.FadhiId', $request->fadhi_id);
+    })
+    ->orderBy('assignFadhiDate', 'desc')
+    ->paginate(10)
+    ->withQueryString();
+
+
+
+
+
+    $fadhiyada = Department::all();
+
+    return view('pages.askari.index', compact('assignments', 'fadhiyada'));
+}
+
     
     public function create()
     {

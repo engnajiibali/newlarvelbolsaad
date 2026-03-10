@@ -49,6 +49,11 @@ class Askari extends Model
         return $this->belongsTo(Department::class, 'FadhiId', 'id');
     }
 
+    public function assignhubs()
+{
+    return $this->hasMany(Assignhub::class, 'AskariId', 'AskariId');
+}
+
     public function getAskariImageUrlAttribute()
     {
         if (!$this->AskariImage) {

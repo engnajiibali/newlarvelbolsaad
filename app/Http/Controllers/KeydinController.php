@@ -56,10 +56,10 @@ class KeydinController extends Controller
                 ->addColumn('action', function ($row) {
                     // Always show View button
                     $btn = '<a href="' . route('keydin.show', $row->keydin_ID) . '" class="btn btn-info btn-sm"><i class="fa fa-eye"></i></a> ';
-                    
+                     $btn .= '<a href="' . route('keydin.edit', $row->keydin_ID) . '" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></a> ';
                     // ROLE CHECK: Only show Edit/Delete if role_id is 1
                     if (auth()->user()->role_id == 1) {
-                        $btn .= '<a href="' . route('keydin.edit', $row->keydin_ID) . '" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></a> ';
+                       
                         $btn .= '<button data-id="' . $row->keydin_ID . '" class="deleteKeydin btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>';
                     }
                     

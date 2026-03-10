@@ -38,4 +38,17 @@ class AssignFadhi extends Model
     {
         return $this->belongsTo(Department::class, 'FadhiId', 'id');
     }
+
+        // ✅ THIS IS THE KEY FIX
+    public function assignhubs()
+    {
+        return $this->hasManyThrough(
+            Assignhub::class, // final model
+            Askari::class,    // through model
+            'AskariId',       // FK on askari table
+            'AskariId',       // FK on assignhub table
+            'AskariId',       // local key on assignfadhi
+            'AskariId'        // local key on askari
+        );
+    }
 }

@@ -36,25 +36,63 @@
 
     <!-- Cards -->
     <div class="row mb-4">
-
         <div class="col-lg-3 col-md-6 d-flex">
             <div class="card flex-fill">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <span class="avatar avatar-lg bg-info rounded-circle">
-                            <i class="ti ti-users"></i>
-                        </span>
-                        <div class="ms-2">
-                            <p class="fs-12 mb-1">Total Assignments</p>
-                            <h4>{{ $assignments->total() }}</h4>
-                        </div>
+                <div class="card-body d-flex align-items-center">
+                    <span class="avatar avatar-lg bg-info rounded-circle">
+                        <i class="ti ti-users"></i>
+                    </span>
+                    <div class="ms-2">
+                        <p class="fs-12 mb-1">Total Assignments</p>
+                        <h4>{{ $assignments->total() }}</h4>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-    <!-- /Cards -->
+
+    <!-- Search / Filter -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header bg-white fw-bold">Raadinta / Shaandhaynta</div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('askari.index') }}" class="row g-3">
+
+                <div class="col-md-3">
+                    <input type="text" name="darajada" class="form-control"
+                        placeholder="Darajada" value="{{ request('darajada') }}">
+                </div>
+
+                <div class="col-md-3">
+                    <input type="text" name="lambar_ciidan" class="form-control"
+                        placeholder="Lambar Ciidan" value="{{ request('lambar_ciidan') }}">
+                </div>
+
+                <div class="col-md-3">
+                    <input type="text" name="magaca" class="form-control"
+                        placeholder="Magaca Askari" value="{{ request('magaca') }}">
+                </div>
+
+                <div class="col-md-2">
+                    <select name="fadhi_id" class="form-select select2">
+                        <option value="">-- Fadhi --</option>
+                        @foreach ($fadhiyada as $f)
+                            <option value="{{ $f->id }}"
+                                {{ request('fadhi_id') == $f->id ? 'selected' : '' }}>
+                                {{ $f->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-1 d-grid">
+                    <button class="btn btn-primary">
+                        <i class="ti ti-search"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
 
     <!-- Table -->
     <div class="card">
@@ -68,22 +106,26 @@
                     <thead class="thead-light">
                         <tr>
                             <th>#</th>
-                            <th>Askari</th>
+                            <th>Darajada</th>
+                            <th>Lambar Ciidan</th>
+                            <th>Magaca</th>
                             <th>Fadhi</th>
                             <th>Assign Date</th>
                             <th>Update Date</th>
+                            <th>Qoryaha</th>
+                            <th>Qori Numbers</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
 
+                    <tbody>
                         @forelse($assignments as $assignment)
                             <tr>
                                 <td>{{ $assignment->assignfadhiId }}</td>
-
+                                <td>{{ $assignment->askari->Darajada ?? 'N/A' }}</td>
+                                <td>{{ $assignment->askari->LamabrkaCiidanka ?? 'N/A' }}</td>
                                 <td>{{ $assignment->askari->MagacaQofka ?? 'N/A' }}</td>
-
                                 <td>{{ $assignment->fadhi->name ?? 'N/A' }}</td>
 
                                 <td>{{ \Carbon\Carbon::parse($assignment->assignFadhiDate)->format('Y-m-d') }}</td>
@@ -94,8 +136,22 @@
                                         : '-' }}
                                 </td>
 
+                                <!-- Qoryaha count -->
+                                <td>{{ $assignment->qori_count ?? 0 }}</td>
+
+                                <!-- Qori numbers -->
                                 <td>
-                                    @if($assignment->Status)
+                                    @forelse($assignment->assignhubs->where('Status', 0) as $qori)
+                                        <span class="badge bg-info mb-1">
+                                            {{ $qori->QoriNumber }}
+                                        </span>
+                                    @empty
+                                        <span class="text-muted">No Qori</span>
+                                    @endforelse
+                                </td>
+
+                                <td>
+                                    @if($assignment->Status == 0)
                                         <span class="badge badge-success">
                                             <i class="ti ti-point-filled me-1"></i>Active
                                         </span>
@@ -108,14 +164,13 @@
 
                                 <td>
                                     <div class="action-icon d-inline-flex align-items-center">
-
                                         <a href="{{ route('askari.show', $assignment->assignfadhiId) }}"
-                                           class="btn btn-sm btn-light me-1" title="View">
+                                           class="btn btn-sm btn-light me-1">
                                             <i class="ti ti-eye"></i>
                                         </a>
 
                                         <a href="{{ route('askari.edit', $assignment->assignfadhiId) }}"
-                                           class="btn btn-sm btn-light me-1" title="Edit">
+                                           class="btn btn-sm btn-light me-1">
                                             <i class="ti ti-edit"></i>
                                         </a>
 
@@ -126,31 +181,27 @@
                                             @method('DELETE')
                                             <button type="submit"
                                                     class="btn btn-sm btn-light"
-                                                    title="Delete"
                                                     onclick="return confirm('Delete this assignment?')">
                                                 <i class="ti ti-trash"></i>
                                             </button>
                                         </form>
-
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">No assignments found</td>
+                                <td colspan="11" class="text-center text-muted">
+                                    No assignments found
+                                </td>
                             </tr>
                         @endforelse
-
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
             <div class="row px-3 pb-3">
-                <div class="col-md-6">
-                    Showing {{ $assignments->firstItem() ?? 0 }} to {{ $assignments->lastItem() ?? 0 }}
-                    of {{ $assignments->total() }} entries
-                </div>
+                <div class="col-md-6"></div>
                 <div class="col-md-6 text-end">
                     {{ $assignments->links() }}
                 </div>
@@ -158,7 +209,6 @@
 
         </div>
     </div>
-    <!-- /Table -->
 
 </div>
 @endsection
