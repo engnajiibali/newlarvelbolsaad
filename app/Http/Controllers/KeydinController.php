@@ -8,12 +8,14 @@ use App\Models\Department;
 use App\Models\Assignhub;
 use App\Models\Shaqsiyaadka;
 use App\Models\AssignShaqsi;
+use App\Models\Askari;
 use App\Models\AssignHubToStore;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB; // ← Add this line!
 
 class KeydinController extends Controller
 {
@@ -53,18 +55,25 @@ class KeydinController extends Controller
                         return '<span class="badge bg-warning text-dark">Unknown</span>';
                     }
                 })
-                ->addColumn('action', function ($row) {
-                    // Always show View button
-                    $btn = '<a href="' . route('keydin.show', $row->keydin_ID) . '" class="btn btn-info btn-sm"><i class="fa fa-eye"></i></a> ';
-                     $btn .= '<a href="' . route('keydin.edit', $row->keydin_ID) . '" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></a> ';
-                    // ROLE CHECK: Only show Edit/Delete if role_id is 1
-                    if (auth()->user()->role_id == 1) {
-                       
-                        $btn .= '<button data-id="' . $row->keydin_ID . '" class="deleteKeydin btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>';
-                    }
-                    
-                    return $btn;
-                })
+           ->addColumn('action', function ($row) {
+    // Always show View + Edit
+    $btn  = '<a href="' . route('keydin.show', $row->keydin_ID) . '" class="btn btn-info btn-sm">
+                <i class="fa fa-eye"></i>
+             </a> ';
+
+    $btn .= '<a href="' . route('keydin.edit', $row->keydin_ID) . '" class="btn btn-primary btn-sm">
+                <i class="fa fa-edit"></i>
+             </a> ';
+
+    // Only show Delete for admin (role_id == 1)
+    if (auth()->user()->role_id == 1) {
+        $btn .= '<button data-id="' . $row->keydin_ID . '" class="deleteKeydin btn btn-danger btn-sm">
+                    <i class="fa fa-trash"></i>
+                 </button>';
+    }
+
+    return $btn;
+})
                 ->rawColumns(['action', 'keydin_Xalada'])
                 ->make(true);
         }
@@ -89,8 +98,7 @@ class KeydinController extends Controller
         if ($request->filled('status')) {
             $query->where('keydin_Xalada', $request->status);
         }
-
-          if ($request->filled('status1')) {
+            if ($request->filled('status1')) {
             $query->where('Xalada', $request->status1);
         }
 
@@ -124,6 +132,8 @@ class KeydinController extends Controller
 ,'shaqsiyadka' 
         ));
     }
+
+
 
 public function siiHubShaqsi(Request $request)
 {
@@ -174,18 +184,65 @@ public function siiHubShaqsi(Request $request)
 
     return redirect()->back()->with('success', 'Hubka si guul leh ayaa loogu wareejiyay Shaqsiga.');
 }
+    public function reassignAskari(Request $request)
+{
+     $request->validate([
+        'keydin_id' =>  'required|exists:tbl_keydin,keydin_ID',
+        'AskariId' => 'required',
+        'Xaalada2' => 'required',
+        'FadhiId' => 'required',
+        'date' => 'required|date'
+    ]);
 
+        $keydin = Keydin::find($request->keydin_id);
+    $keydin->update([
+        'Xalada' => $request->Xaalada2,
+        'FadhiId'       => $request->FadhiId // Hubka fadhigiisa halkan ku update garee
+    ]);
+    
+// Close old Assignhub record
+        Assignhub::where('keydin_ID', $request->keydin_id)
+            ->where('Status', 0)
+            ->update([
+                'Status'     => 1,
+                'FinishDate' => now(),
+            ]);
+
+    \App\Models\Assignhub::create([
+        'AskariId' => $request->AskariId,
+        'ItemId' => $keydin->keydin_itemID,
+        'QoriNumber' => $keydin->keydin_lambarka1,
+        'CreateDate' => $request->date,
+        'Status' => 0,
+        'StoreId' => 0,
+        'keydin_ID' => $keydin->keydin_ID,
+    ]);
+
+    // $keydin = Keydin::findOrFail($request->keydin_id);
+
+    // $keydin->askari_id = $request->AskariId;
+    // $keydin->fadhi_id = $request->FadhiId;
+    // $keydin->date = $request->date;
+
+    // $keydin->save();
+
+    return redirect()->back()->with('success','Hubka si guul leh ayaa loo wareejiyay');
+}
 public function siiHubAskari(Request $request)
 {
     $request->validate([
         'keydin_id' => 'required|exists:tbl_keydin,keydin_ID',
         'AskariId' => 'required',
+        'FadhiId1' => 'required',
         'date' => 'required|date',
     ]);
 
     // 1. Update Keydin (Status-ka u bixi Askari/Baxay)
     $keydin = Keydin::find($request->keydin_id);
-    $keydin->update(['keydin_Xalada' => 1]);
+    $keydin->update([
+        'keydin_Xalada' => 1,
+        'FadhiId'       => $request->FadhiId1 // Hubka fadhigiisa halkan ku update garee
+    ]);
 
     // 2. Finish current store assignment
     \App\Models\AssignHubToStore::where('ashtst_keID', $keydin->keydin_ID)
@@ -202,6 +259,7 @@ public function siiHubAskari(Request $request)
         'QoriNumber' => $keydin->keydin_lambarka1,
         'CreateDate' => $request->date,
         'Status' => 0,
+        'StoreId' => 0,
         'keydin_ID' => $keydin->keydin_ID,
     ]);
 
@@ -213,9 +271,10 @@ public function siiHubAskari(Request $request)
         $pageTitle = "Keydin";
         $subTitle = "Liiska Keydinta";
 
-        $keydins = Keydin::with(['FadhiIdRelation', 'QaybtaHubkaRelation'])
-            ->latest('keydin_ID')
-            ->paginate(10);
+      $keydins = Keydin::with(['FadhiIdRelation', 'QaybtaHubkaRelation'])
+    ->orderBy('keydin_ID', 'desc')
+    ->paginate(10);
+
 
         $AllKeydin = Keydin::count();
         $ActiveKeydin = Keydin::where('keydin_Xalada', 1)->count();
@@ -341,13 +400,12 @@ public function store(Request $request)
 
     // ================= ASSIGN TO STORE =================
     if ($validated['Xaalada1'] == 0) {
+      
         \App\Models\AssignHubToStore::create([
             'ashtst_keID' => $keydin->keydin_ID,
             'StoreID' => $validated['store_id'],
             'QoriNum' => $validated['LambarkaTaxanaha'],
             'CreateDate' => now(),
-            'ashtst_Status' => 0,
-            'ashtst_FinishDate' => null,
         ]);
     }
 
@@ -520,7 +578,6 @@ public function store(Request $request)
         $keydin = Keydin::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'Xaalada1' => 'required|in:0,1',
             'Xaalada2' => 'required|in:1,2,3,4,5,6',
             'date' => 'required|date',
             'FadhiId' => 'required|integer',
@@ -529,15 +586,14 @@ public function store(Request $request)
             'Calamaden' => 'required|string',
             'ShaqeynKara' => 'required|in:1,2',
             'Lahansho' => 'required|in:Dawlada,Shaqsi,Qabiil',
-            'faahfaahintaHubka' => 'required|string',
-            'sawiradaHubka.*' => 'nullable|image|max:2048'
+            'faahfaahintaHubka' => 'required|string'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors'=>$validator->errors()], 422);
         }
 
-        $keydin->keydin_Xalada = $request->Xaalada1;
+  
         $keydin->Xalada = $request->Xaalada2;
         $keydin->keydin_CreateDate = $request->date;
         $keydin->FadhiId = $request->FadhiId;
@@ -547,15 +603,7 @@ public function store(Request $request)
         $keydin->Lahansho = $request->Lahansho;
         $keydin->Describ = $request->faahfaahintaHubka;
 
-        if($request->hasFile('sawiradaHubka')){
-            $existingImages = $keydin->images ? explode(',', $keydin->images) : [];
-            foreach($request->file('sawiradaHubka') as $file){
-                $filename = time().'_'.$file->getClientOriginalName();
-                $file->move(public_path('images/keydin/'), $filename);
-                $existingImages[] = $filename;
-            }
-            $keydin->keydin_image1 = implode(',', $existingImages);
-        }
+    
 
         $keydin->save();
         return response()->json(['message'=>'Record updated successfully!']);
@@ -591,6 +639,36 @@ public function store(Request $request)
         }
     }
 
+      public function searchAskari(Request $request)
+    {
+        try {
+            $search = $request->input('search');
+            if (empty($search) || strlen($search) < 1) {
+                return response()->json(['success' => true, 'data' => []]);
+            }
+            $results = Askari::where(function ($query) use ($search) {
+                    $query->where('MagacaQofka', 'LIKE', "%{$search}%")
+                       ->orWhere('Darajada', 'LIKE', "%{$search}%")
+                      ->orWhere('LamabrkaCiidanka', 'LIKE', "%{$search}%")
+                          ->orWhere('TalefanLambar', 'LIKE', "%{$search}%");
+                })
+                 ->select(
+                'AskariId',
+                'LamabrkaCiidanka',
+                'Darajada',
+                'MagacaQofka',
+                'TalefanLambar'
+            )
+                ->orderBy('MagacaQofka')
+                ->limit(50)
+                ->get();
+
+            return response()->json(['success' => true, 'data' => $results]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
     public function search(Request $request)
     {
         $query = $request->get('q');
@@ -607,6 +685,56 @@ public function store(Request $request)
         $keydin = Keydin::with(['FadhiIdRelation', 'QaybtaHubkaRelation'])->findOrFail($id);
         return response()->json($keydin);
     }
+ public function returnToStore(Request $request)
+{
+    $request->validate([
+        'keydin_id'     => 'required|exists:tbl_keydin,keydin_ID',
+        'store_id'      => 'required|exists:storada,StoradaId',
+        'department_id' => 'required|exists:departments,id',
+        'QoriNum'       => 'required|string',
+        'Xaalada2'       => 'required|string',
+    ]);
+
+    DB::transaction(function () use ($request) {
+
+        // Close old Assignhub record
+        Assignhub::where('keydin_ID', $request->keydin_id)
+            ->where('Status', 0)
+            ->update([
+                'Status'     => 1,
+                'FinishDate' => now(),
+            ]);
+
+        // Close old AssignHubToStore record
+        AssignHubToStore::where('ashtst_keID', $request->keydin_id)
+            ->where('ashtst_Status', 0)
+            ->update([
+                'ashtst_Status'     => 1,
+                'ashtst_FinishDate' => now()
+            ]);
+
+        // Insert new AssignHubToStore record
+        AssignHubToStore::create([
+            'ashtst_keID'   => $request->keydin_id,
+            'StoreID'       => $request->store_id,
+            'QoriNum'       => $request->QoriNum,
+            'CreateDate'    => now(),
+            'ashtst_Status' => 0,
+            'FadhiId'       => $request->department_id // optional: save department
+        ]);
+
+        // Update keydin status & fadhi
+        DB::table('tbl_keydin')
+            ->where('keydin_ID', $request->keydin_id)
+            ->update([
+                'keydin_Xalada' => 0,
+                'FadhiId'      => $request->department_id,
+                'Xalada'      => $request->Xaalada2,
+            ]);
+    });
+
+    return back()->with('success', 'Hubka si guul leh ayaa loogu celiyay Store.');
+}
 
     public function show($id)
     {
@@ -620,7 +748,6 @@ public function store(Request $request)
                 ->where('ashtst_keID', $id)
                 ->latest('ashtst_ID')
                 ->first();
-
                 
                  
         } elseif($keydin->keydin_Xalada == 1){

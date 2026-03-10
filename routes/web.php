@@ -124,15 +124,23 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/keydin/sii-askari', [KeydinController::class, 'siiHubAskari'])->name('hubka.sii.askari');
     Route::post('/search-askari', [KeydinController::class, 'searchAskari'])->name('askari.search');    
     Route::post('/shaqsi/search', [KeydinController::class, 'searchShaqsi'])->name('shaqsi.search');
+Route::post('/hubka/return/store', [KeydinController::class, 'returnToStore'])
+    ->name('hubka.return.store');
+
+Route::post('/hubka/reassign/askari', [KeydinController::class, 'reassignAskari'])
+    ->name('hubka.reassign.askari');
+Route::post('/stores/by-department', [StoreController::class, 'getByDepartment'])
+    ->name('stores.by.department');
 
     Route::get('/armies', [ArmyApiController::class, 'index']);
     Route::get('/armies/{id}', [ArmyApiController::class, 'show']);
 
-
-
-
-
-
+    /*
+    |--------------------------------------------------------------------------
+    | Resource Controllers (Inta kale ee Routes-kaaga)
+    |--------------------------------------------------------------------------
+    */
+   
     Route::get('/askari', [AskariController::class, 'index'])->name('askari.index'); // List all
 
     Route::get('/askari/create', [AskariController::class, 'create'])->name('askari.create'); // Form create
@@ -149,12 +157,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     
 Route::get('/search-askari', [AskariController::class, 'searchAskari'])
     ->name('search.askari');
-    /*
-    |--------------------------------------------------------------------------
-    | Resource Controllers (Inta kale ee Routes-kaaga)
-    |--------------------------------------------------------------------------
-    */
-    
     Route::resource('departments', DepartmentController::class);
     Route::resource('userRole', UserRoleController::class);
     Route::resource('units', UnitController::class);

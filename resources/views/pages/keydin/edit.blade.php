@@ -12,7 +12,7 @@
                 <div class="row g-3">
 
                     <!-- Xaalada 1 -->
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <label for="Xaalada1" class="form-label">Xaalada: *</label>
                         <select class="form-control" id="Xaalada1" name="Xaalada1" required>
                             <option value="">Dooro Xaalada</option>
@@ -20,7 +20,7 @@
                             <option value="1" {{ $keydin->keydin_Xalada == 1 ? 'selected' : '' }}>La baxshay</option>
                         </select>
                         <span class="text-danger error-text Xaalada1_error"></span>
-                    </div>
+                    </div> -->
 
                     <!-- Xaalada 2 -->
                     <div class="col-md-6">
@@ -79,7 +79,7 @@
                     </div>
 
                     <!-- Sawirada Hubka -->
-                    <div class="col-md-12">
+                    <!-- <div class="col-md-12">
                         <label for="sawiradaHubka" class="form-label">Sawirada Hubka: *</label>
                         <input type="file" class="form-control" id="sawiradaHubka" name="sawiradaHubka[]" multiple>
                         <div id="preview-container" class="mt-2 d-flex flex-wrap gap-2">
@@ -98,7 +98,7 @@
                         </div>
                         <span class="text-danger error-text sawiradaHubka_error"></span>
                         <small class="form-text text-muted">Maximum 12 files allowed. Click "X" to remove an image.</small>
-                    </div>
+                    </div> -->
 
                     <!-- Lambarka Taxanaha -->
                     <div class="col-md-6">
@@ -282,7 +282,7 @@ $(document).ready(function(){
             success:function(res){
                 saveBtn.html(originalBtnHtml).prop('disabled',false);
                 Swal.fire({icon:'success',title:'Updated!',text:res.message||'Record updated',timer:2000,showConfirmButton:false})
-                    .then(()=>{ window.location.href="{{ route('keydin.index') }}"; });
+                    .then(()=>{ window.location.href="{{ route('keydin.list') }}"; });
             },
             error:function(err){
                 saveBtn.html(originalBtnHtml).prop('disabled',false);
